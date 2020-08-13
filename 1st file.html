@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Simulator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        .car,
+        .enemy {
+            width: 50px;
+            height: 92px;
+            background-color: red;
+            position: absolute;
+            bottom: 100px;
+            background-image: url("car 1.png");
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            z-index: 2
+        }
+
+        .gameArea {
+            background-color: #2f3542;
+            z-index: 1;
+            height: 100vh;
+            width: 400px;
+            margin: auto;
+            position: relative;
+            overflow: hidden;
+            border-left: dashed 7px white;
+            border-right: dashed 7px white;
+        }
+
+        .line {
+            width: 10px;
+            height: 80px;
+            background-color: white;
+            position: absolute;
+            margin-left: 195px;
+            z-index: 1
+        }
+
+        .score {
+            position: absolute;
+            left: 30px;
+            top: 40px;
+            width: 350px;
+            line-height: 55px;
+            text-align: center;
+            background-color: #009432;
+            color: white;
+
+            font-size: 1.3rem;
+            font-family: 'Press Start 2P', cursive;
+            text-shadow: 1px 1px 2px black, 0 0 25px blue, 0 0 5px darkblue;
+            box-shadow: 5px 10px 18px #A3CB38;
+
+
+
+
+        }
+
+        .StartScreen {
+            position: absolute;
+            background-color: #3742fa;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            color: whitesmoke;
+            z-index: 2 !important;
+            text-align: center;
+            border-style: solid;
+            border-width: 5px;
+            border-radius: 4px;
+            border-color: #00d2d3;
+            padding: 15px;
+            margin: auto;
+            width: 50%;
+            cursor: pointer;
+            letter-spacing: 5;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 20px;
+            word-spacing: 3;
+            line-height: 30px;
+            text-transform: uppercase;
+            box-shadow: 5px 10px 18px #A3CB38;
+
+
+        }
+
+        .carGame {
+            background-image: url("background.jpg");
+            width: 100%;
+            height: 100vh;
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+
+        }
+    </style>
+</head>
+
+<body>
+    <div class="carGame">
+        <div class="score"></div>
+        <div class="StartScreen">
+            <p>Press here to start</p>
+            <br>
+            <p>Press the arrow keys to move</p>
+            <br>
+            <p>If you hit any other car you will lose</p>
+
+        </div>
+        <div class="gameArea">
+            <p></p>
+
+
+        </div>
+
+
+
+    </div>
+
+</body>
+<script>
+    var player = {
+        speed: 5,
+        score: 0
+    };
+    var keys = {
+        ArrowUp: false,
+        ArrowDown: false,
+        ArrowRight: false,
+        ArrowLeft: false
+
+    } //creating an object of the keys and intialising false values to each keys initially
+    const score1 = document.querySelector(".score");
+    const StartScreen1 = document.querySelector(".StartScreen");
+    const gameArea1 = document.querySelector(".gameArea");
+    // console.log(score1);
+    // console.log(StartScreen1);
+    // console.log(gameArea1);
+    StartScreen1.addEventListener("click", start);
+
+    function start() {
+
+
+        // gameArea1.classList.remove("hide");
+        StartScreen1.classList.add("hide"); //and put the hide class to the startscreen area
+        gameArea1.innerHTML = "";
+        player.start = true; //setting the game start to true
+        player.score = 0;
+        window.requestAnimationFrame(play); //defining the callback function start with requestAnimationFrame
+        for (let x = 0; x < 6; x++) {
+            let roadline = document.createElement("div"); //creating the lines of the road
+            roadline.setAttribute("class", "line");
+            roadline.y = (x * 140);
+            roadline.style.top = roadline.y + "px"; //setting the top of the roadlines
+            gameArea1.appendChild(roadline);
+        }
+        // gameArea1.classList.remove("hide"); //after the click event on the we remove the hide class from the gamearea
+
+        let car = document.createElement("div"); //creating an element in the document named div
+
+        car.setAttribute("class", "car"); //setting the class of the attribute named as car
+        // car.innerText = "I am your first Car"; //Setting the inner text of that element
+        gameArea1.appendChild(car); //appending the div on
+        player.x = car.offsetLeft;
+        player.y = car.offsetTop;
+        // console.log("Top position is:" + car.offsetTop);
+        // console.log("Position from the left is:" + car.offsetLeft);
+        for (let x = 0; x < 4; x++) {
+            let enemyCar = document.createElement("div"); //creating the lines of the road
+            enemyCar.setAttribute("class", "enemy");
+            enemyCar.y = ((x + 1) * 350) * -1;
+            enemyCar.style.top = enemyCar.y + "px"; //setting the top of the roadlines
+            enemyCar.style.backgroundColor = randomColor();
+            enemyCar.style.left = Math.floor(Math.random() *
+                350) + "px"; //setting the randomnes of the car throughout the width
+            gameArea1.appendChild(enemyCar);
+        }
+        // console.log(player);
+    }
+
+    function randomColor() { //defining the random colors
+        function c() {
+            let hex = Math.floor(Math.random() * 256).toString(16);
+            return ("0" + String(hex)).substr(-2);
+        }
+        return "#" + c() + c() + c();
+
+    }
+    document.addEventListener("keydown", function (x) {
+        x.preventDefault();
+        keys[x.key] = true; //setting the key down to true
+        // console.log(x.key);
+        // console.log(keys);
+
+    });
+    document.addEventListener("keyup", function (x) {
+        x.preventDefault();
+        keys[x.key] = false; //setting the keyup to false
+        // console.log(x.key);
+        // console.log(keys);
+
+    });
+
+    function isCollide(a, b) { //function for checking the collision
+        mainCar = a.getBoundingClientRect();
+        otherCar = b.getBoundingClientRect();
+        return !((mainCar.bottom < otherCar.top) || (otherCar.bottom < mainCar.top) || (mainCar.right < otherCar
+            .left) || (otherCar.right < mainCar.left));
+
+    }
+
+    function movelines() { //road animation part
+        let lines = document.querySelectorAll(".line");
+        lines.forEach(function (item) {
+            if (item.y >=
+                800
+            ) { //setting the top of the line to total of -ve(total height of the road+total height of the box)
+                item.y = item.y - 850;
+
+            }
+            item.y = item.y + player.speed; //adding the top of the line with the defined speed eevry time
+            item.style.top = item.y + "px";
+
+
+        });
+
+
+    }
+
+    function endGame() {
+        player.start = false; //setting the player start to false
+        StartScreen1.classList.remove("hide");
+        StartScreen1.innerHTML = "Game Over <br> your final score is:-" + player.score + " " +
+            "<br>Press here to Start Again";
+
+    }
+
+    function moveEnemy(car) { //car animation part
+        let enemy1 = document.querySelectorAll(".enemy");
+        enemy1.forEach(function (item) {
+            if (isCollide(car, item)) { //calling the function to check for collisions
+                endGame(); //calling the end-game method 
+                console.log("You are Out");
+            }
+            if (item.y >=
+                900
+            ) { //setting the top of the car to total of -ve(total height of the road+total height of the box)
+                item.y = -500;
+                item.style.left = Math.floor(Math.random() *
+                    350) + "px";
+            }
+            item.y = item.y + player.speed; //adding the top of the car with the defined speed evry time
+            item.style.top = item.y + "px";
+
+
+        });
+
+
+    }
+
+    function play() {
+        // console.log(
+        //     "The game is started"
+        // ); //defining the callback function play with calling the requestAnimationFrame again to perform continous iteration
+        let car = document.querySelector(".car");
+        let road = gameArea1.getBoundingClientRect(); //getting all the properties of the game area through this method
+        // console.log(road);
+        if (player.start) { //to check if the player has either started the game if yes then call requestAnimation
+            //defining the functioning in keypresses
+            movelines();
+            moveEnemy(car);
+
+            if (keys.ArrowUp && player.y > (road.top + 120)) {
+                player.y = player.y - player.speed;
+            }
+            if (keys.ArrowDown && player.y < (road.bottom - 100)) {
+                player.y = player.y + player.speed;
+            }
+            if (keys.ArrowLeft && player.x > 0) {
+                player.x = player.x - player.speed;
+
+            }
+            if (keys.ArrowRight && player.x < (road.width - 68)) {
+                player.x = player.x + player.speed;
+
+            }
+            car.style.top = player.y + "px"; //setting the top value to pixels in css
+            car.style.left = player.x + "px"; //setting the left value to pixels in css
+            // console.log(player.y);
+            // console.log(player.x);
+
+            window.requestAnimationFrame(play);
+            console.log(player.score++); //incrementing the score
+            player.score++;
+            let ps = player.score - 2;
+            score1.innerText = "Your score is:-" + " " + ps;
+        }
+
+
+    };
+</script>
+
+
+</html>
